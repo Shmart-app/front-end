@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Navbar from "./helper/navbar";
 import { useFonts, Nunito_600SemiBold } from "@expo-google-fonts/nunito";
@@ -6,30 +6,16 @@ import ConsumptionOverview from "./helper/consumptionOverview";
 import ProductCard from "./helper/productCard";
 import { productInterface } from "../../TS helper files/productInterface";
 import BottomBar from "./helper/bottomBar";
+import { useAlg } from "../../context/cartContext";
 const HomeScreen = () => {
   let [fontsLoaded] = useFonts({
     Nunito_600SemiBold,
   });
-  let cart: productInterface[] = [
-    {
-      name: "Apple",
-      imgUrl: "https://nix-tag-images.s3.amazonaws.com/140_highres.jpg",
-      weightLb: 1,
-      price: 4.99,
-    },
-    {
-      name: "Almonds",
-      imgUrl: "https://nix-tag-images.s3.amazonaws.com/140_highres.jpg",
-      weightLb: 1,
-      price: 4.98,
-    },
-    {
-      name: "Orange",
-      imgUrl: "https://nix-tag-images.s3.amazonaws.com/140_highres.jpg",
-      weightLb: 1,
-      price: 5.1,
-    },
-  ];
+  let { cart, setCartWrapper } = useAlg();
+
+  useEffect(() => {
+    console.log("**************" + cart);
+  }, [cart]);
   if (fontsLoaded) {
     return (
       <View style={styles.back}>
@@ -43,12 +29,15 @@ const HomeScreen = () => {
           horizontal={true}
         >
           {cart.map((cartEntry, i) => {
+            console.log(
+              JSON.stringify(cartEntry["nutrition"]["photo"]["highres"])
+            );
             return (
               <ProductCard
                 name={cartEntry.name}
-                imgUrl={cartEntry.imgUrl}
-                price={cartEntry.price}
-                weightLb={cartEntry.weightLb}
+                imgUrl={cartEntry["nutrition"]["photo"]["highres"]}
+                price={parseFloat((Math.random() * 5).toPrecision(3))}
+                weightLb={parseFloat((Math.random() * 2).toPrecision(2))}
                 key={i}
               />
             );

@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   text: {
     color: "#263238",
     fontFamily: "Nunito_600SemiBold",
-    fontSize: 17,
+    fontSize: 12,
     padding: 15,
   },
 });

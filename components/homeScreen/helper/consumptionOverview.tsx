@@ -1,9 +1,40 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { PieChart } from "react-native-chart-kit";
 import { useFonts, Nunito_300Light } from "@expo-google-fonts/nunito";
+import { useAlg } from "../../../context/cartContext";
 const ConsumptionOverview = () => {
+  const [carbs, setCarbs] = useState<number>(0);
+  const [fat, setFat] = useState<number>(0);
+  const [protien, setProtien] = useState<number>(0);
+  let { cart } = useAlg();
   const data = [0.4, 0.6, 0.8];
+
+  useEffect(() => {
+    // extract all the info
+    if (cart.length != 0) {
+      let c = 0;
+      let f = 0;
+      let p = 0;
+      for (let i = 0; i < cart.length; i++) {
+        c +=
+          cart[i]["nutrition"]["nf_total_carbohydrate"] /
+          cart[i]["nutrition"]["serving_weight_grams"];
+        f +=
+          cart[i]["nutrition"]["nf_total_fat"] /
+          cart[i]["nutrition"]["serving_weight_grams"];
+        p +=
+          cart[i]["nutrition"]["nf_protein"] /
+          cart[i]["nutrition"]["serving_weight_grams"];
+      }
+      c = (100 * c) / cart.length;
+      p = (100 * p) / cart.length;
+      f = (100 * f) / cart.length;
+      setCarbs(parseInt(c.toPrecision(4)));
+      setProtien(parseInt(p.toPrecision(4)));
+      setFat(parseInt(f.toPrecision(4)));
+    }
+  }, [cart]);
   let [fontsLoaded] = useFonts({
     Nunito_300Light,
   });
@@ -16,22 +47,29 @@ const ConsumptionOverview = () => {
             data={[
               {
                 name: "Carbohydrates",
-                population: 33.3,
+                population: carbs,
                 color: "rgba(131, 167, 234, 1)",
                 legendFontColor: "transparent",
                 legendFontSize: 0,
               },
               {
                 name: "Fat",
-                population: 33.3,
+                population: fat,
                 color: "rgb(235, 91, 83)",
                 legendFontColor: "transparent",
                 legendFontSize: 0,
               },
               {
                 name: "Protein",
-                population: 33.3,
+                population: protien,
                 color: "#A8C41A",
+                legendFontColor: "#7F7F7F",
+                legendFontSize: 0,
+              },
+              {
+                name: "Other",
+                population: 100 - fat - carbs - protien,
+                color: "#333",
                 legendFontColor: "#7F7F7F",
                 legendFontSize: 0,
               },
@@ -56,6 +94,9 @@ const ConsumptionOverview = () => {
             backgroundColor="transparent"
             paddingLeft="35"
           />
+          <View style={styles.bolded_weight}>
+            <Text style={{ color: "#ffffff" }}>Healthy</Text>
+          </View>
         </View>
         <View style={styles.card_pieChart}>
           <Text style={styles.head}>Nutritional Goals Met</Text>
@@ -63,21 +104,28 @@ const ConsumptionOverview = () => {
             <View style={styles.card_square_blue}></View>
             <View style={styles.text}>
               <Text>Carbohydrates</Text>
-              <Text>42%</Text>
+              <Text>{carbs}%</Text>
             </View>
           </View>
           <View style={styles.card_row}>
             <View style={styles.card_square_red}></View>
             <View style={styles.text}>
               <Text>Fat</Text>
-              <Text>42%</Text>
+              <Text>{fat}%</Text>
             </View>
           </View>
           <View style={styles.card_row}>
             <View style={styles.card_square_green}></View>
             <View style={styles.text}>
               <Text>Protien</Text>
-              <Text>42%</Text>
+              <Text>{protien}%</Text>
+            </View>
+          </View>
+          <View style={styles.card_row}>
+            <View style={styles.card_square_grey}></View>
+            <View style={styles.text}>
+              <Text>Other nutrients</Text>
+              <Text>{100 - fat - protien - carbs}%</Text>
             </View>
           </View>
         </View>
@@ -89,6 +137,23 @@ const ConsumptionOverview = () => {
 };
 
 const styles = StyleSheet.create({
+  bolded_weight: {
+    backgroundColor: "#4E9F3D",
+    color: "#4E9F3D",
+    fontSize: 12,
+    borderRadius: 20,
+    padding: 5,
+    paddingStart: 15,
+    paddingEnd: 15,
+    width: 80,
+    marginBottom: 20,
+  },
+  card_square_grey: {
+    width: 20,
+    height: 20,
+    borderRadius: 50,
+    backgroundColor: "#333",
+  },
   card_container: {
     marginRight: 30,
     marginLeft: 30,
